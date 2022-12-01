@@ -12,77 +12,86 @@ class GameScene: SKScene {
     
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
+    var player1 = SKSpriteNode()
+    var bg = SKSpriteNode()
+    var enemy1 = SKSpriteNode()
     
     override func didMove(to view: SKView) {
         
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
         
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
         
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
+        let texture = SKTexture(imageNamed: "player1")
+        player1 = SKSpriteNode(texture: texture)
+        player1.position = CGPoint(x: -self.frame.width / 2.5, y: self.frame.height / (-3))
+        player1.size = CGSize(width: self.frame.width / 15, height: self.frame.height / 8)
+        player1.zPosition = -1
+        self.addChild(player1)
+        
+        
+        let textureBg = SKTexture(imageNamed: "bg-back.png")
+        bg = SKSpriteNode(texture: textureBg)
+        bg.position = CGPoint(x: 0, y: 0)
+        bg.size = CGSize(width: self.frame.width * 1.05, height: self.frame.height * 1.05)
+        bg.zPosition = -3
+        self.addChild(bg)
+        
+        self.spinningEnemy()
     }
     
     
     func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
+      
     }
     
     func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
+        
     }
     
     func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
+       
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-        }
-        
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
+       
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
+        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
+        
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
+        
     }
     
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+    }
+    
+    func spinningEnemy(){
+       // let randomFloat = Float.random(in: 3...50)
+       // print(randomFloat)
+       
+        let numbers = [2.80, 3.00, 3.50, 6.00, 30.00, 40.00, -2.80, -3.00, -3.50, -6.00, -30.00, -40.00,]
+        let shuffledNumbers = numbers.randomElement()
+        print(shuffledNumbers!)
+        
+        let enemyTexture = SKTexture(imageNamed: "enemy1")
+        enemy1 = SKSpriteNode(texture: enemyTexture)
+        enemy1.position = CGPoint(x: self.frame.width / 10, y: self.frame.height / shuffledNumbers!)
+        enemy1.size = CGSize(width: self.frame.width / 11, height: self.frame.height / 8)
+
+        self.addChild(enemy1)
+        
+        let enemyFrame2 = SKTexture(imageNamed: "enemy2")
+        let enemyFrame3 = SKTexture(imageNamed: "enemy3")
+        let enemyFrame4 = SKTexture(imageNamed: "enemy4")
+        let animation = SKAction.animate(with: [enemyTexture, enemyFrame3, enemyFrame4, enemyFrame2], timePerFrame: 0.07)
+        
+        enemy1.run(SKAction.repeatForever(animation))
     }
 }
