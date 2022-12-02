@@ -17,8 +17,7 @@ class GameScene: SKScene {
     var enemy1 = SKSpriteNode()
     
     override func didMove(to view: SKView) {
-        
-        
+  
         
         let texture = SKTexture(imageNamed: "player1")
         player1 = SKSpriteNode(texture: texture)
@@ -35,12 +34,24 @@ class GameScene: SKScene {
         bg.zPosition = -3
         self.addChild(bg)
         
-        self.spinningEnemy()
+        let wait1 = SKAction.wait(forDuration: 1)
+        let personTimer = SKAction.repeatForever(SKAction.sequence([wait1, SKAction.run {
+            self.SpinningEnemy() // spawnBike() etc. for each different timer
+            }]))
+        self.run(personTimer, withKey: "SpinningEnemy")
+        
+        //SpinningEnemy()
+        /*
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.spinningEnemy()
+        }
+        */
+
     }
     
     
     func touchDown(atPoint pos : CGPoint) {
-      
+        
     }
     
     func touchMoved(toPoint pos : CGPoint) {
@@ -48,11 +59,11 @@ class GameScene: SKScene {
     }
     
     func touchUp(atPoint pos : CGPoint) {
-       
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-       
+        
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -70,28 +81,52 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        
     }
     
-    func spinningEnemy(){
-       // let randomFloat = Float.random(in: 3...50)
-       // print(randomFloat)
-       
-        let numbers = [2.80, 3.00, 3.50, 6.00, 30.00, 40.00, -2.80, -3.00, -3.50, -6.00, -30.00, -40.00,]
+    func SpinningEnemy(){
+        // let randomFloat = Float.random(in: 3...50)
+        // print(randomFloat)
+        
+        let numbers = [2.80, 3.00, 3.50, 6.00, 10.00, 30.00, 40.00, -2.80, -3.00, -3.50, -6.00, -10.00, -30.00, -40.00]
         let shuffledNumbers = numbers.randomElement()
         print(shuffledNumbers!)
         
         let enemyTexture = SKTexture(imageNamed: "enemy1")
         enemy1 = SKSpriteNode(texture: enemyTexture)
-        enemy1.position = CGPoint(x: self.frame.width / 10, y: self.frame.height / shuffledNumbers!)
+        // enemy1.position = CGPoint(x: self.frame.width / 2, y: self.frame.height / shuffledNumbers!)
         enemy1.size = CGSize(width: self.frame.width / 11, height: self.frame.height / 8)
-
-        self.addChild(enemy1)
+        
+        addChild(enemy1)
         
         let enemyFrame2 = SKTexture(imageNamed: "enemy2")
         let enemyFrame3 = SKTexture(imageNamed: "enemy3")
         let enemyFrame4 = SKTexture(imageNamed: "enemy4")
-        let animation = SKAction.animate(with: [enemyTexture, enemyFrame3, enemyFrame4, enemyFrame2], timePerFrame: 0.07)
-        
+        let animation = SKAction.animate(with: [enemyTexture, enemyFrame3, enemyFrame4, enemyFrame2], timePerFrame: 0.075)
         enemy1.run(SKAction.repeatForever(animation))
+        
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: self.frame.width / 3, y: self.frame.height / shuffledNumbers!))
+        path.addLine(to: CGPoint(x: -self.frame.width / 2.2, y: self.frame.height / shuffledNumbers!))
+        
+        let moveEnemy = SKAction.follow(path.cgPath, asOffset: false, orientToPath: false, speed: 400)
+        
+        enemy1.run(moveEnemy)
+         
+        if enemy1.atPoint(CGPoint(x: -self.frame.width / 2.2, y: self.frame.height / shuffledNumbers!)) == true {
+            self.enemy1.isHidden = true
+        } else {
+            self.enemy1.isHidden = false
+        }
+        
+        
+        
+    
+        
+            
+            
+     //   enemy1.run(SKAction.repeatForever(moveEnemy))
+                
+        
     }
 }
