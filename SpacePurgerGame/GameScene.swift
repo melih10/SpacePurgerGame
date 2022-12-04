@@ -8,22 +8,37 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
     var player1 = SKSpriteNode()
     var bg = SKSpriteNode()
     var enemy1 = SKSpriteNode()
+    var bullet = SKSpriteNode()
+    
+    enum ColliderType : UInt32{
+        case Player = 1
+        case Bullet = 2
+        case Enemy = 4
+    }
+    
+    var score = 0
+    var scoreLabel = SKLabelNode()
+    var gameStarted = false
+    var buttonLabel = SKLabelNode()
+    var isEnemyAlive = true
     
     override func didMove(to view: SKView) {
-  
+        //Physics Body
+        self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        self.scene?.scaleMode = .aspectFit
+        self.physicsWorld.contactDelegate = self
+        physicsWorld.gravity = .zero
         
         let texture = SKTexture(imageNamed: "player1")
         player1 = SKSpriteNode(texture: texture)
         player1.position = CGPoint(x: -self.frame.width / 2.5, y: self.frame.height / (-3))
         player1.size = CGSize(width: self.frame.width / 15, height: self.frame.height / 8)
-        player1.zPosition = -1
+        player1.zPosition = 1
         self.addChild(player1)
         
         
@@ -34,19 +49,42 @@ class GameScene: SKScene {
         bg.zPosition = -3
         self.addChild(bg)
         
-        let wait1 = SKAction.wait(forDuration: 1)
-        let personTimer = SKAction.repeatForever(SKAction.sequence([wait1, SKAction.run {
-            self.SpinningEnemy() // spawnBike() etc. for each different timer
-            }]))
-        self.run(personTimer, withKey: "SpinningEnemy")
         
-        //SpinningEnemy()
-        /*
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.spinningEnemy()
-        }
-        */
+        //Label
+        scoreLabel.fontName = "Helvetica"
+        scoreLabel.fontSize = 70
+        scoreLabel.text = "0"
+        scoreLabel.position = CGPoint(x: self.frame.width / 2.5, y: self.frame.height / 3)
+        scoreLabel.zPosition = 2
+        self.addChild(scoreLabel)
+        
+        // Button
+        buttonLabel.fontSize = 100
+        buttonLabel.text = "Button"
+        buttonLabel.position = CGPoint(x: 0, y: 0)
+        buttonLabel.zPosition = 2
+        self.addChild(buttonLabel)
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+    //    if contact.bodyA.collisionBitMask == ColliderType.Bullet.rawValue || contact.bodyB.collisionBitMask == ColliderType.Enemy.rawValue {
+            
+        guard let nodeA = contact.bodyA.node else {return}
+        guard let nodeB = contact.bodyB.node else {return}
 
+        let sortedNodes = [nodeA, nodeB].sorted { $0.name ?? "" < $1.name ?? ""  }
+        let firstNode = sortedNodes[0]
+        let secondNode = sortedNodes[1]
+
+            print("contact")
+          //  enemy1.isHidden = true
+          //  bullet.isHidden = true
+            firstNode.removeFromParent()
+            secondNode.removeFromParent()
+            score += 1
+            scoreLabel.text = String(score)
+            
+       // }
     }
     
     
@@ -63,15 +101,35 @@ class GameScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if gameStarted == false {
+            
+            let wait1 = SKAction.wait(forDuration: 1)
+            let personTimer = SKAction.repeatForever(SKAction.sequence([wait1, SKAction.run {
+                self.SpinningEnemy() // spawnBike() etc. for each different timer
+                self.spawnBullets()
+            }]))
+            self.run(personTimer, withKey: "SpinningEnemy")
+        }
+        
         
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
+        for touch: AnyObject in touches {
+            let location = touch.location(in: self)
+            player1.position.y = location.y
+            
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        let wait1 = SKAction.wait(forDuration: 0.5)
+        let personTimer = SKAction.repeatForever(SKAction.sequence([wait1, SKAction.run {
+            self.SpinningEnemy() // spawnBike() etc. for each different timer
+           // self.spawnBullets()
+        }]))
+        self.run(personTimer, withKey: "SpinningEnemy")
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -81,22 +139,31 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        if score >= 10 {
+           // score = 0
+           // scoreLabel.text = String(score)
+            buttonLabel.text = "Go to Next Level"
+            enemy1.isHidden = true
+            player1.isHidden = true
+            bullet.isHidden = true
+          //  score = +1000
+          //  scoreLabel.text = "+1000"
+            gameStarted = true
+        }
         
-    }
+        }
+    
     
     func SpinningEnemy(){
-        // let randomFloat = Float.random(in: 3...50)
-        // print(randomFloat)
-        
         let numbers = [2.80, 3.00, 3.50, 6.00, 10.00, 30.00, 40.00, -2.80, -3.00, -3.50, -6.00, -10.00, -30.00, -40.00]
         let shuffledNumbers = numbers.randomElement()
         print(shuffledNumbers!)
         
         let enemyTexture = SKTexture(imageNamed: "enemy1")
         enemy1 = SKSpriteNode(texture: enemyTexture)
-        // enemy1.position = CGPoint(x: self.frame.width / 2, y: self.frame.height / shuffledNumbers!)
         enemy1.size = CGSize(width: self.frame.width / 11, height: self.frame.height / 8)
-        
+        let sizeEnemy = enemy1.size
+        enemy1.zPosition = 1
         addChild(enemy1)
         
         let enemyFrame2 = SKTexture(imageNamed: "enemy2")
@@ -107,26 +174,36 @@ class GameScene: SKScene {
         
         let path = UIBezierPath()
         path.move(to: CGPoint(x: self.frame.width / 3, y: self.frame.height / shuffledNumbers!))
-        path.addLine(to: CGPoint(x: -self.frame.width / 2.2, y: self.frame.height / shuffledNumbers!))
-        
+        path.addLine(to: CGPoint(x: -self.frame.width / 0.1, y: self.frame.height / shuffledNumbers!))
+      
         let moveEnemy = SKAction.follow(path.cgPath, asOffset: false, orientToPath: false, speed: 400)
-        
         enemy1.run(moveEnemy)
-         
-        if enemy1.atPoint(CGPoint(x: -self.frame.width / 2.2, y: self.frame.height / shuffledNumbers!)) == true {
-            self.enemy1.isHidden = true
-        } else {
-            self.enemy1.isHidden = false
-        }
+      //  if enemy1.position == CGPoint(x: -self.frame.width / 2.2, y: self.frame.height / shuffledNumbers!) {
+      //      self.enemy1.isHidden = true
+      //  }
         
-        
-        
+        enemy1.physicsBody = SKPhysicsBody(texture: enemyTexture, size: sizeEnemy)
+        enemy1.physicsBody?.affectedByGravity = false
+       
+        enemy1.physicsBody?.collisionBitMask = ColliderType.Bullet.rawValue
+    }
     
+    func spawnBullets(){
+        let bulletTexture = SKTexture(imageNamed: "shoot2")
+        bullet = SKSpriteNode(texture: bulletTexture)
+        bullet.size = CGSize(width: self.frame.width / 11, height: self.frame.height / 25)
+        let sizeB = bullet.size
+        bullet.zPosition = 1
+        bullet.position = CGPointMake(player1.position.x, player1.position.y)
+        let action = SKAction.moveTo(x: self.size.width + 30, duration: 1.0)
+        bullet.run(SKAction.repeatForever(action))
+        bullet.physicsBody = SKPhysicsBody(rectangleOf: sizeB)
+        bullet.physicsBody?.affectedByGravity = false
+        bullet.physicsBody?.isDynamic = false
+        addChild(bullet)
         
-            
-            
-     //   enemy1.run(SKAction.repeatForever(moveEnemy))
-                
-        
+        bullet.physicsBody?.contactTestBitMask = ColliderType.Bullet.rawValue
+        bullet.physicsBody?.categoryBitMask = ColliderType.Bullet.rawValue
+        bullet.physicsBody?.collisionBitMask = ColliderType.Enemy.rawValue
     }
 }
