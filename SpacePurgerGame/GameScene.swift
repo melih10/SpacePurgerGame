@@ -79,6 +79,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("contact")
           //  enemy1.isHidden = true
           //  bullet.isHidden = true
+            firstNode.isHidden = true
+            secondNode.isHidden = true
             firstNode.removeFromParent()
             secondNode.removeFromParent()
             score += 1
