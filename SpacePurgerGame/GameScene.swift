@@ -60,7 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Button
         buttonLabel.fontSize = 100
-        buttonLabel.text = "Button"
+        buttonLabel.text = ""
         buttonLabel.position = CGPoint(x: 0, y: 0)
         buttonLabel.zPosition = 2
         self.addChild(buttonLabel)
@@ -105,10 +105,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let wait1 = SKAction.wait(forDuration: 1)
             let personTimer = SKAction.repeatForever(SKAction.sequence([wait1, SKAction.run {
-                self.SpinningEnemy() // spawnBike() etc. for each different timer
-                self.spawnBullets()
+                self.SpinningEnemy()
             }]))
             self.run(personTimer, withKey: "SpinningEnemy")
+            
+            let wait2 = SKAction.wait(forDuration: 0.5)
+            let bulletTimer = SKAction.repeatForever(SKAction.sequence([wait2, SKAction.run {
+                self.spawnBullets()
+            }]))
+            self.run(bulletTimer, withKey: "spawnBullets")
         }
         
         
