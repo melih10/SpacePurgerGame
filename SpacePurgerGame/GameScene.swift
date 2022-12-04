@@ -67,8 +67,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-    //    if contact.bodyA.collisionBitMask == ColliderType.Bullet.rawValue || contact.bodyB.collisionBitMask == ColliderType.Enemy.rawValue {
-            
+    //  if contact.bodyA.collisionBitMask == ColliderType.Bullet.rawValue || contact.bodyB.collisionBitMask == ColliderType.Enemy.rawValue {
+        
         guard let nodeA = contact.bodyA.node else {return}
         guard let nodeB = contact.bodyB.node else {return}
 
@@ -111,6 +111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             let wait2 = SKAction.wait(forDuration: 0.5)
             let bulletTimer = SKAction.repeatForever(SKAction.sequence([wait2, SKAction.run {
+
                 self.spawnBullets()
             }]))
             self.run(bulletTimer, withKey: "spawnBullets")
@@ -147,12 +148,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if score >= 10 {
            // score = 0
            // scoreLabel.text = String(score)
-            buttonLabel.text = "Go to Next Level"
+            buttonLabel.text = "Well Done!Go to Next Level"
             enemy1.isHidden = true
             player1.isHidden = true
             bullet.isHidden = true
           //  score = +1000
           //  scoreLabel.text = "+1000"
+            let wait1 = SKAction.wait(forDuration: 0)
+            let personTimer = SKAction.repeatForever(SKAction.sequence([wait1, SKAction.run {
+                self.SpinningEnemy()
+            }]))
+            self.run(personTimer, withKey: "SpinningEnemy")
+            
+            
+            let wait2 = SKAction.wait(forDuration: 0)
+            let bulletTimer = SKAction.repeatForever(SKAction.sequence([wait2, SKAction.run {
+
+                self.spawnBullets()
+            }]))
+            self.run(bulletTimer, withKey: "spawnBullets")
+            
+            
             gameStarted = true
         }
         
