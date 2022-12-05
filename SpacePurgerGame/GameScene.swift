@@ -28,12 +28,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var isEnemyAlive = true
     
     override func didMove(to view: SKView) {
+        
         //Physics Body
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         self.scene?.scaleMode = .aspectFit
         self.physicsWorld.contactDelegate = self
         physicsWorld.gravity = .zero
         
+        //Player's Spaceship
         let texture = SKTexture(imageNamed: "player1")
         player1 = SKSpriteNode(texture: texture)
         player1.position = CGPoint(x: -self.frame.width / 2.5, y: self.frame.height / (-3))
@@ -41,14 +43,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player1.zPosition = 1
         self.addChild(player1)
         
-        
+        //Backgroung Image
         let textureBg = SKTexture(imageNamed: "bg-back.png")
         bg = SKSpriteNode(texture: textureBg)
         bg.position = CGPoint(x: 0, y: 0)
         bg.size = CGSize(width: self.frame.width * 1.05, height: self.frame.height * 1.05)
         bg.zPosition = -3
         self.addChild(bg)
-        
         
         //Label
         scoreLabel.fontName = "Helvetica"
@@ -79,8 +80,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let secondNode = sortedNodes[1]
 
             print("contact")
-          //  enemy1.isHidden = true
-          //  bullet.isHidden = true
 
             firstNode.isHidden = true
             secondNode.isHidden = true
@@ -89,8 +88,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             secondNode.removeFromParent()
             score += 1
             scoreLabel.text = String(score)
-        
-       // }
     }
     
     
@@ -150,22 +147,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
         if score >= 10 {
-           // score = 0
-           // scoreLabel.text = String(score)
+            
             buttonLabel.text = "Well Done!Go to Next Level"
             enemy1.isHidden = true
             player1.isHidden = true
             bullet.isHidden = true
-          //  score = +1000
-          //  scoreLabel.text = "+1000"
+
             let wait1 = SKAction.wait(forDuration: 0)
             let personTimer = SKAction.repeatForever(SKAction.sequence([wait1, SKAction.run {
                 self.SpinningEnemy()
             }]))
             self.run(personTimer, withKey: "SpinningEnemy")
-            
             
             let wait2 = SKAction.wait(forDuration: 0)
             let bulletTimer = SKAction.repeatForever(SKAction.sequence([wait2, SKAction.run {
@@ -175,10 +168,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.run(bulletTimer, withKey: "spawnBullets")
             
             gameStarted = true
-        }
-        
-        }
-    
+        }}
     
     func SpinningEnemy(){
         let numbers = [2.80, 3.00, 3.50, 6.00, 10.00, 30.00, 40.00, -2.80, -3.00, -3.50, -6.00, -10.00, -30.00, -40.00]
