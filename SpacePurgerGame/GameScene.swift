@@ -59,7 +59,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(scoreLabel)
         
         // Button
-        buttonLabel.fontSize = 100
+        buttonLabel.fontSize = 70
+        buttonLabel.fontColor = .purple
+        buttonLabel.fontName = "Helvetica"
         buttonLabel.text = ""
         buttonLabel.position = CGPoint(x: 0, y: 0)
         buttonLabel.zPosition = 2
