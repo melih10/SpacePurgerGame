@@ -4,6 +4,8 @@
 //
 //  Created by Melih on 1.12.2022.
 //
+//Collisin between enemy ship and player ship has not been programmed,yet. Explosion affect will be added.
+//Bug: Bullet and enemy ship collision gets multiple contacts and so score. It has to be one only.
 
 import SpriteKit
 import GameplayKit
@@ -70,26 +72,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-    //  if contact.bodyA.collisionBitMask == ColliderType.Bullet.rawValue || contact.bodyB.collisionBitMask == ColliderType.Enemy.rawValue {
-        
-        guard let nodeA = contact.bodyA.node else {return}
-        guard let nodeB = contact.bodyB.node else {return}
-
-        let sortedNodes = [nodeA, nodeB].sorted { $0.name ?? "" < $1.name ?? ""  }
-        let firstNode = sortedNodes[0]
-        let secondNode = sortedNodes[1]
-
-            print("contact")
-
-            firstNode.isHidden = true
-            secondNode.isHidden = true
-
-            firstNode.removeFromParent()
-            secondNode.removeFromParent()
+        if contact.bodyA.collisionBitMask == ColliderType.Bullet.rawValue || contact.bodyB.collisionBitMask == ColliderType.Enemy.rawValue && contact.bodyA.collisionBitMask == ColliderType.Player.rawValue  {
+            
+            
+            
+             guard let nodeA = contact.bodyA.node else {return}
+             guard let nodeB = contact.bodyB.node else {return}
+             
+             let sortedNodes = [nodeA, nodeB].sorted { $0.name ?? "" < $1.name ?? ""  }
+             let firstNode = sortedNodes[0]
+             let secondNode = sortedNodes[1]
+             print("contact")
+             //   firstNode.isHidden = true
+             //   secondNode.isHidden = true
+             
+             firstNode.removeFromParent()
+             secondNode.removeFromParent()
             score += 1
             scoreLabel.text = String(score)
+        }
     }
-    
     
     func touchDown(atPoint pos : CGPoint) {
         
@@ -147,7 +149,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func update(_ currentTime: TimeInterval) {
-        if score >= 10 {
+        if score >= 50 {
             
             buttonLabel.text = "Well Done!Go to Next Level"
             enemy1.isHidden = true
